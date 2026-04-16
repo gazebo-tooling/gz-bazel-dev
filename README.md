@@ -113,6 +113,8 @@ cd ../gz-common
 bazel test graphics:Image_TEST
 ```
 
+See https://github.com/gazebo-tooling/gz-bazel-dev/issues/3 for more details.
+
 ### Missing Bazel support
 
 The following Gazebo packages and features are currently not fully supported or implemented in Bazel:
