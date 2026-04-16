@@ -1,0 +1,3 @@
+# Import settings from the gz-sim package, assumed to be installed alongside
+# gz-bazel-dev.
+import ../gz-sim/.bazelrc
