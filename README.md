@@ -1,6 +1,6 @@
 # Gz Bazel Dev
 
-This repo sets up a [Bazel](https://bazel.build/) development workspace for [Gazebo](gazebosim.org) packages.
+This repo sets up a [Bazel](https://bazel.build/) development workspace for [Gazebo](https://gazebosim.org) packages.
 This repo is primarily intended for developers who are familiar with the Bazel build system, and would like to contribute to the Gazebo project (see [contribution guidelines](https://gazebosim.org/docs/latest/contributing/)).
 
 Each Gazebo package repo supports development with Bazel natively (e.g. [Gz Sim](https://github.com/gazebosim/gz-sim/blob/main/BUILD.bazel)).
@@ -19,6 +19,19 @@ Note that Bazel development for Gazebo packages is currently supported only on U
 
 ## Installation
 
+### Install Bazel
+
+We recommend installing `bazelisk`, which wraps `bazel` and removes the need to download version-specific bazel binaries.
+
+Follow the [platform-specific instructions](https://github.com/bazelbuild/bazelisk?tab=readme-ov-file#installation) on their Github repo.
+
+The following instructions are for Linux with AMD64 (i.e. x86-64) architecture, and they install `bazelisk` at `/usr/local/bin/bazel` (recommended):
+
+```sh
+sudo curl -L https://github.com/bazelbuild/bazelisk/releases/latest/download/bazelisk-linux-amd64 -o /usr/local/bin/bazel
+sudo chmod +x /usr/local/bin/bazel
+```
+
 ### Install `vcstool`
 
 Follow the platform-specific instructions for source install at [gazebosim.org](https://gazebosim.org/docs/latest/install) to install `vcstool`.
@@ -33,19 +46,6 @@ python3 -m venv $HOME/vcs_installation
 pip3 install vcstool
 ```
 
-### Install Bazel
-
-We recommend installing `bazelisk`, which wraps `bazel` and removes the need to download version-specific bazel binaries.
-
-Follow the [platform-specific instructions](https://github.com/bazelbuild/bazelisk?tab=readme-ov-file#installation) on their Github repo.
-
-The following instructions are for Linux with AMD64 (i.e. x86-64) architecture, and installs `bazelisk` at `/usr/local/bin/bazel` (recommended):
-
-```sh
-sudo curl -L https://github.com/bazelbuild/bazelisk/releases/download/v1.28.1/bazelisk-linux-amd64 -o /usr/local/bin/bazel
-sudo chmod +x /usr/local/bin/bazel
-```
-
 ### Set up bazel workspace
 
 Create a directory for the bazel workspace and fetch the Gazebo package sources for the Rotary release.
@@ -56,7 +56,6 @@ Note that Gazebo supports Bazel (bzlmod) in Ionic and later releases.
 mkdir -p $HOME/gz_bazel_workspace && cd $HOME/gz_bazel_workspace
 curl -O https://raw.githubusercontent.com/gazebo-tooling/gazebodistro/master/collection-rotary.yaml
 vcs import < collection-rotary.yaml
-deactivate
 ```
 
 Clone the `gz-bazel-dev` repo alongside the other Gazebo package sources.
@@ -64,6 +63,15 @@ Clone the `gz-bazel-dev` repo alongside the other Gazebo package sources.
 ```sh
 git clone https://github.com/gazebo-tooling/gz-bazel-dev.git
 cd gz-bazel-dev
+```
+
+### Clean up `vcstool`
+
+You can deactivate and delete the virtual env at `$HOME/vcs_installation` if you want, since it is not needed for development with bazel.
+
+```sh
+deactivate
+rm -r $HOME/vcs_installation
 ```
 
 ### Verify installation
@@ -93,18 +101,10 @@ Unit-tests can be run with `bazel test`. For example:
 bazel test @gz-rendering//:all
 ```
 
-### Clean up `vcstool`
-
-You can delete the virtual env at `$HOME/vcs_installation` if you want, since it is not needed for development with bazel.
-
-```sh
-rm -r $HOME/vcs_installation
-```
-
 ## Limitations
 
 ### Failing tests
-Some test targets may fail **falsely** when built the from the bazel workspace due to runtime repo differences (`_main` vs `external`).
+Some test targets may fail **falsely** when built the from the bazel workspace [due to runtime repo name differences](https://preview.bazel.build/concepts/runfiles#) (`_main` vs `external`).
 You can still run these failing test targets directly from the local package source directory, but this will build and run the test target in a separate bazel workspace for that package.
 For example
 
