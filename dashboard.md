@@ -23,29 +23,34 @@ Status        | Ionic | Jetty | Rotary
 [gz-physics][physics-repo] | [![Bazel CI][physics-ionic-gh-actions-badge]][physics-ionic-gh-actions] | [![Bazel CI][physics-jetty-gh-actions-badge]][physics-jetty-gh-actions] | [![Bazel CI][physics-rotary-gh-actions-badge]][physics-rotary-gh-actions]
 [gz-sim][sim-repo] | [![Bazel CI][sim-ionic-gh-actions-badge]][sim-ionic-gh-actions] | [![Bazel CI][sim-jetty-gh-actions-badge]][sim-jetty-gh-actions] | [![Bazel CI][sim-rotary-gh-actions-badge]][sim-rotary-gh-actions]
 
-## Collections and versions
+## Packages without Bazel support
 
-Branch (and major version) tracked by each column above.
+The rest of the packages of the collections are not part of this workspace.
+None of them provides a `MODULE.bazel` or a `BUILD.bazel` file in any of the
+branches above, and there is no issue tracking the work in their repositories.
 
-Package       | Ionic | Jetty | Rotary
-------------- | ----- | ----- | ------
-[gz-utils][utils-repo] | `gz-utils3` | `gz-utils4` | `main` (5)
-[gz-math][math-repo] | `gz-math8` | `gz-math9` | `main` (10)
-[gz-plugin][plugin-repo] | `gz-plugin3` | `gz-plugin4` | `main` (5)
-[gz-common][common-repo] | `gz-common6` | `gz-common7` | `main` (8)
-[gz-msgs][msgs-repo] | `gz-msgs11` | `gz-msgs12` | `main` (13)
-[gz-rendering][rendering-repo] | `gz-rendering9` | `gz-rendering10` | `main` (11)
-[sdformat][sdformat-repo] | `sdf15` | `sdf16` | `main` (17)
-[gz-fuel-tools][fuel-tools-repo] | `gz-fuel-tools10` | `gz-fuel-tools11` | `main` (12)
-[gz-transport][transport-repo] | `gz-transport14` | `gz-transport15` | `main` (16)
-[gz-sensors][sensors-repo] | `gz-sensors9` | `gz-sensors10` | `main` (11)
-[gz-physics][physics-repo] | `gz-physics8` | `gz-physics9` | `main` (10)
-[gz-sim][sim-repo] | `gz-sim9` | `gz-sim10` | `main` (11)
-
-The following packages of the collections are not built by this workspace, since
-they have no Bazel support: `gz-gui`, `gz-launch` and `gz-tools`.
-`gz-cmake` is not needed, its role is taken by
-[rules_gazebo](https://github.com/gazebo-tooling/rules_gazebo).
+* `gz-gui`: needs Qt 6 (Core, Quick, QML and the `moc`/`rcc`/`uic` code
+  generators). There is no Qt module in the
+  [Bazel Central Registry](https://registry.bazel.build), only the community
+  maintained [rules_qt6](https://github.com/Vertexwahn/rules_qt6). As a
+  consequence, `gui_main.cc` of `gz-sim` is not built either, and the Gazebo Sim
+  GUI requires a CMake or a binary installation.
+* `gz-tools`: the `gz` command is a Ruby script that looks up its subcommands by
+  globbing the `*.yaml` files installed under `GZ_CONFIG_PATH` and loading the
+  versioned `libgz-<lib>-gz` shared libraries with `fiddle`. Both the install
+  prefix and the versioned shared libraries are CMake concepts with no
+  equivalent in Bazel. The Bazel builds skip the dispatcher and build the
+  subcommands as plain binaries instead, for example `@gz-transport//:topic` and
+  `@gz-transport//:service`. `gz-sim` excludes `src/gz.cc` from its library,
+  defines the `GZ_SIM_*_RELATIVE_PATH` macros as empty strings and uses a
+  Bazel-only `getInstallPrefix()` that returns `.`; it does not declare any
+  executable, so there is no `gz sim` command in this workspace.
+* `gz-launch`: deprecated in Jetty (`gz-launch9`) and to be removed in the next
+  collection, see its
+  [migration guide](https://github.com/gazebosim/gz-launch/blob/main/Migration.md).
+  It is already out of the Rotary collection, so it will not get Bazel support.
+* `gz-cmake`: not needed, its role is taken by
+  [rules_gazebo](https://github.com/gazebosim/rules_gazebo).
 
 [utils-repo]: https://github.com/gazebosim/gz-utils
 [utils-ionic-gh-actions]: https://github.com/gazebosim/gz-utils/actions/workflows/bazel.yml?query=branch%3Agz-utils3
